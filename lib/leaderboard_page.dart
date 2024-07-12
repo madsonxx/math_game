@@ -7,12 +7,23 @@ class LeaderboardPage extends StatefulWidget {
   State<LeaderboardPage> createState() => _LeaderboardPageState();
 }
 
-class _LeaderboardPageState extends State<LeaderboardPage> {
+class _LeaderboardPageState extends State<LeaderboardPage>
+    with SingleTickerProviderStateMixin {
+  // Add this mixin
   Map<String, List<String>> highScores = {};
+  late TabController _tabController; // Tab controller
   @override
   void initState() {
     super.initState();
     _loadHighScores();
+    _tabController = TabController(length: 4, vsync: this);
+    // Initialize with 4 tabs
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose(); // Dispose the controller
+    super.dispose();
   }
 
   Future<void> _loadHighScores() async {
@@ -32,8 +43,20 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Liderança'),
+        bottom: TabBar(
+          // Add TabBar
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Soma'),
+            Tab(text: 'Subtração'),
+            Tab(text: 'Multiplicação'),
+            Tab(text: 'Divisão'),
+          ],
+        ),
       ),
-      body: PageView(
+      body: TabBarView(
+        // Add TabBarView
+        controller: _tabController,
         children: [
           _buildHighScoreList('Soma'),
           _buildHighScoreList('Subtração'),
@@ -45,6 +68,12 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Widget _buildHighScoreList(String operation) {
+    if (highScores[operation]?.isEmpty ?? true) {
+      return Center(
+        child: Text('No high scores for $operation yet!'),
+      );
+    }
+
     return ListView.builder(
       itemCount: highScores[operation]?.length ?? 0,
       itemBuilder: (context, index) {

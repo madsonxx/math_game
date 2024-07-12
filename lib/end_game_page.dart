@@ -29,6 +29,8 @@ class EndGamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _saveScore(finalScore); // Call _saveScore here
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Fim de Jogo!'),
