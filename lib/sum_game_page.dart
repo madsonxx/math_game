@@ -20,7 +20,11 @@ class _SumGamePageState extends State<SumGamePage> {
   String userAnswer = '';
   String correctAnswer = '';
   late Timer timer;
-  int remainingTime = 10;
+  int remainingTime = 60;
+  int correctAnswerStreak = 0;
+  int scoreMultiplier = 1;
+  Timer? _multiplierTimer;
+  int _multiplierDuration=4;
 
   @override
   void initState() {
@@ -77,17 +81,47 @@ class _SumGamePageState extends State<SumGamePage> {
     int userAnswerInt = int.tryParse(userAnswer) ?? 0;
     if (remainingTime > 0 && userAnswerInt == sum) {
       setState(() {
-        score++;
+        score += 100 * scoreMultiplier;
         feedbackMessage = 'Correct!';
+        correctAnswerStreak++;
+        _updateMultiplier();
+        _startMultiplierTimer();
         _generateNewSum();
         userAnswer = '';
       });
     } else if (userAnswer.length == sum.toString().length) {
       setState(() {
+        correctAnswerStreak = 0;
+        scoreMultiplier = 1;
+        _cancelMultiplierTimer();
         feedbackMessage = 'Ops! Você respondeu: $userAnswer';
         userAnswer = '';
       });
     }
+  }
+
+  void _updateMultiplier() {
+    if (correctAnswerStreak >= 2 && correctAnswerStreak < 6) {
+      scoreMultiplier = 2;
+    } else if (correctAnswerStreak >= 6 && correctAnswerStreak < 10) {
+      scoreMultiplier = 3;
+    } else if (correctAnswerStreak >= 10) {
+      scoreMultiplier = 4;
+    }
+  }
+
+  void _cancelMultiplierTimer() {
+    _multiplierTimer?.cancel();
+    _multiplierTimer = null;
+  }
+
+  void _startMultiplierTimer() {
+    _cancelMultiplierTimer(); // Cancel any existing timer
+    _multiplierTimer = Timer(const Duration(seconds: 4), () {
+      setState(() {
+        scoreMultiplier = 1; // Reset multiplier after 4 seconds
+      });
+    });
   }
 
   void resetGame() {
@@ -141,6 +175,26 @@ class _SumGamePageState extends State<SumGamePage> {
                     feedbackMessage,
                     style: const TextStyle(fontSize: 20, color: Colors.green),
                   ),
+                  if (scoreMultiplier > 1) ...[
+                    // Spread operator to insert the widgets
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('${scoreMultiplier}x',
+                            style: const TextStyle(fontSize: 18)),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                          width: 100,
+                          child: LinearProgressIndicator(
+                            value: _multiplierTimer != null 
+                                    ? 1 - (_multiplierTimer!.tick / _multiplierDuration) 
+                                    : 0.0, 
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                  ],
                   const SizedBox(
                     height: 20,
                   ),
