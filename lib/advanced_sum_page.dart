@@ -26,17 +26,18 @@ class _AdvancedSumPageState extends State<AdvancedSumPage> {
   void initState() {
     super.initState();
     _generateNumbers();
-    currentStep = resultControllers.length - 1; 
+    currentStep = resultControllers.length - 1;
   }
 
   void _generateNumbers() {
     Random random = Random();
     firstNumber = random.nextInt(900) + 100; // Numbers from 100 to 999
     secondNumber = random.nextInt(900) + 100;
-    int numDigits = firstNumber.toString().length;
+    int actualSum = firstNumber + secondNumber; // Calculate the actual sum
+    int numDigits = actualSum > 999 ? 4 : 3;
     resultControllers =
         List.generate(numDigits, (_) => TextEditingController());
-    carryOvers = List.filled(numDigits, 0);
+    carryOvers = List.filled(numDigits, 0); // Reset carry-overs
   }
 
   void _calculateResult() {
@@ -62,13 +63,32 @@ class _AdvancedSumPageState extends State<AdvancedSumPage> {
 
   void _checkAnswer() {
     int userAnswerInt = int.tryParse(userAnswer) ?? 0;
-    if (currentStep > 0) { 
-  setState(() {
-    currentStep--; 
-  });
-}
+    int digitSum = 0;
 
+    if (currentStep >= 0) {
+      // Make sure currentStep is within bounds
+      resultControllers[currentStep].text = userAnswer; // Fill the box
+      // Calculate sum for current position (including carry-over)
+      digitSum = int.parse(firstNumber.toString()[currentStep]) +
+          int.parse(secondNumber.toString()[currentStep]) +
+          carryOvers[currentStep];
+    }
 
+    if (currentStep == 0 && digitSum >= 10) {
+      // If we're at the thousands digit and the sum is >= 10, there's a carry-over
+      // You'll need to display this carry-over somehow (e.g., in a message or an extra box)
+      print(
+          "Carry-over for thousands: ${digitSum ~/ 10}"); // For now, just print it
+    } else if (currentStep > 0) {
+      carryOvers[currentStep - 1] = digitSum ~/ 10;
+    }
+    // Trigger a rebuild to show the carry-over box immediately
+    setState(() {
+      if (currentStep > 0) {
+        currentStep--;
+        userAnswer = '';
+      }
+    });
 
     if (userAnswerInt == sum) {
       setState(() {
@@ -105,7 +125,7 @@ class _AdvancedSumPageState extends State<AdvancedSumPage> {
           } else {
             onNumberButtonPressed(value);
             // Check answer only if the number of digits in userAnswer matches the sum
-            if (userAnswer.length == sum.toString().length) {
+            if (userAnswer.length == 1) {
               _checkAnswer();
             }
           }
@@ -134,19 +154,18 @@ class _AdvancedSumPageState extends State<AdvancedSumPage> {
             ),
             // Result row with carry-over boxes
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ..._buildNumberDisplay(firstNumber.toString()),
-                const SizedBox(width: 10),
+                ..._buildNumberDisplay(firstNumber.toString(), true),
+                const SizedBox(width: 110),
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Text('+', style: TextStyle(fontSize: 36)),
-                const SizedBox(width: 10),
                 // Second Number Display
-                ..._buildNumberDisplay(secondNumber.toString()),
+                ..._buildNumberDisplay(secondNumber.toString(), false),
+                const SizedBox(width: 110),
               ],
             ),
             Row(
@@ -163,7 +182,8 @@ class _AdvancedSumPageState extends State<AdvancedSumPage> {
                       ),
                     ),
                     child: SizedBox(
-                      width: 40,
+                      width: 30,
+                      height: 40,
                       child: TextField(
                         controller: resultControllers[index],
                         textAlign: TextAlign.center,
@@ -225,26 +245,43 @@ class _AdvancedSumPageState extends State<AdvancedSumPage> {
   }
 
   // Helper function to build the number display with highlighted digits
-  List<Widget> _buildNumberDisplay(String number) {
+  List<Widget> _buildNumberDisplay(String number, bool isTopNumber) {
     List<Widget> digits = [];
     for (int i = 0; i < number.length; i++) {
       digits.add(
         Column(
           children: [
+            if (isTopNumber && i < number.length - 1 && carryOvers[i] > 0)
+              Container(
+                margin: const EdgeInsets.only(bottom: 5),
+                width: 30,
+                height: 20,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: (currentStep ==
+                            i + 1) // Highlight if carry-over exists and it's the next step
+                        ? Colors.blue
+                        : Colors.grey,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    carryOvers[i].toString(),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              ),
             Text(
               number[i],
               style: TextStyle(
                 fontSize: 36,
-                fontWeight: i == (number.length - 1 - currentStep)
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-                color: i == (number.length - 1 - currentStep)
-                    ? Colors.red
-                    : Colors.black,
+                fontWeight:
+                    i == currentStep ? FontWeight.bold : FontWeight.normal,
+                color: i == currentStep ? Colors.red : Colors.black,
               ),
             ),
             SizedBox(
-              width: 30,
+              width: 45,
             )
           ],
         ),
