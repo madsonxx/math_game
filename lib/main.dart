@@ -18,10 +18,10 @@ class SumGameApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sum Game',
+      theme: ThemeData.light(),
       home: MainMenuScreen(), // Start with the menu screen
       routes: {
         '/somaGame': (context) => SumGamePage(),
-        '/operations': (context) => OperationSelectionPage(),
         '/subtractionGame': (context) => SubtractionGamePage(),
         '/multiplicationGame': (context) => MultiplicationGamePage(),
         '/divisionGame': (context) => DivisionGamePage(),
@@ -36,11 +36,11 @@ class MainMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900], // Dark background
       appBar: AppBar(
-        title:
-            const Text('Sum Game Menu', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.grey[800], // Dark app bar
+        centerTitle: true,
+        title: const Text('Matemática Super Tabuada',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blue, // Dark app bar
       ),
       body: Center(
         child: Column(
@@ -48,16 +48,24 @@ class MainMenuScreen extends StatelessWidget {
           children: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[400], // Futuristic blue button
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                textStyle: const TextStyle(fontSize: 18),
+                backgroundColor: Colors.green, // Cor de destaque
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 80, vertical: 25), // Aumenta o tamanho
+                textStyle: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold), // Texto maior e em negrito
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(20), // Cantos arredondados
+                ),
+                elevation: 10, // Sombra para destacar
               ),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => OperationSelectionPage()),
+                      builder: (context) =>
+                          OperationSelectionPage(isLearningMode: false)),
                 );
               },
               child:
@@ -75,11 +83,12 @@ class MainMenuScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const LeaderboardPage()),
+                      builder: (context) =>
+                          OperationSelectionPage(isLearningMode: true)),
                 );
               },
-              child: const Text('Liderança',
-                  style: TextStyle(color: Colors.white)),
+              child:
+                  const Text('Aprender', style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -90,9 +99,13 @@ class MainMenuScreen extends StatelessWidget {
                 textStyle: const TextStyle(fontSize: 18),
               ),
               onPressed: () {
-                // Add functionality for "Configurações" button here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const LeaderboardPage()),
+                );
               },
-              child: const Text('Configurações',
+              child: const Text('Pontuações',
                   style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 20),
@@ -114,4 +127,3 @@ class MainMenuScreen extends StatelessWidget {
     );
   }
 }
-

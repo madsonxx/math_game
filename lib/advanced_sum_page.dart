@@ -154,14 +154,14 @@ class _AdvancedSumPageState extends State<AdvancedSumPage> {
             ),
             // Result row with carry-over boxes
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ..._buildNumberDisplay(firstNumber.toString(), true),
                 const SizedBox(width: 110),
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Second Number Display
                 ..._buildNumberDisplay(secondNumber.toString(), false),

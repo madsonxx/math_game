@@ -24,7 +24,7 @@ class _SumGamePageState extends State<SumGamePage> {
   int correctAnswerStreak = 0;
   int scoreMultiplier = 1;
   Timer? _multiplierTimer;
-  int _multiplierDuration=4;
+  int _multiplierDuration = 4;
 
   @override
   void initState() {
@@ -186,9 +186,11 @@ class _SumGamePageState extends State<SumGamePage> {
                         SizedBox(
                           width: 100,
                           child: LinearProgressIndicator(
-                            value: _multiplierTimer != null 
-                                    ? 1 - (_multiplierTimer!.tick / _multiplierDuration) 
-                                    : 0.0, 
+                            value: _multiplierTimer != null
+                                ? 1 -
+                                    (_multiplierTimer!.tick /
+                                        _multiplierDuration)
+                                : 0.0,
                           ),
                         ),
                       ],
